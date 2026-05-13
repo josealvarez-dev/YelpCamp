@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Campground = require('./models/campground');
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
+const catchAsync = require('./utils/catchAsync');
 
 const app = express();
 
@@ -51,14 +52,11 @@ app.post('/campgrounds', async (req, res) => {
     res.redirect(`/campgrounds/${campground._id}`);
 });
 
-// Ruta para ver UN SOLO campamento a detalle (Show)
-app.get('/campgrounds/:id', async (req, res) => {
-    // 1. El guardia busca el campamento por su ID
+// OJO: Envolvemos TODO dentro de catchAsync(...)
+app.get('/campgrounds/:id', catchAsync(async (req, res) => {
     const campamentoEncontrado = await Campground.findById(req.params.id);
-
-    // 2. Se lo mandamos al pintor, a un archivo llamado 'show'
     res.render('campgrounds/show', { campground: campamentoEncontrado });
-});
+}));
 // 1. Ruta para MOSTRAR el formulario de edición (busca por el DNI)
 app.get('/campgrounds/:id/edit', async (req, res) => {
     const campamento = await Campground.findById(req.params.id);
@@ -82,6 +80,20 @@ app.delete('/campgrounds/:id', async (req, res) => {
     // Redirigimos al usuario a la vitrina principal
     res.redirect('/campgrounds');
 });
+
+
+// EL NUEVO PARAMÉDICO (Más inteligente)
+app.use((err, req, res, next) => {
+    // 1. Extraemos el número de error (si no tiene, usamos el 500 por defecto)
+    const { statusCode = 500 } = err;
+
+    // 2. Extraemos el mensaje (si no tiene, usamos uno por defecto)
+    if (!err.message) err.message = '¡Oh no, algo salió mal!';
+
+    // 3. Le mostramos AL USUARIO el error real en la pantalla
+    res.status(statusCode).send(err.message);
+})
+
 
 // 4. ENCENDIENDO EL SERVIDOR
 app.listen(3000, () => {
