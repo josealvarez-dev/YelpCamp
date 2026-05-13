@@ -1,0 +1,45 @@
+<% layout('layouts/boilerplate') %>
+
+    <div class="row">
+        <!-- Usamos 6 columnas y lo centramos -->
+        <div class="col-6 offset-3">
+
+            <!-- Iniciamos la Tarjeta -->
+            <div class="card mb-3">
+                <!-- La foto va hasta arriba de la tarjeta -->
+                <img src="<%= campground.image %>" class="card-img-top" alt="Foto de <%= campground.title %>">
+
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <%= campground.title %>
+                    </h5>
+                    <p class="card-text">
+                        <%= campground.description %>
+                    </p>
+                </div>
+
+                <!-- Esta es una lista elegante pegada a la tarjeta -->
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item text-muted">
+                        <%= campground.location %>
+                    </li>
+                    <li class="list-group-item">$<%= campground.price %>/noche</li>
+                </ul>
+
+                <!-- Los botones van hasta abajo -->
+                <div class="card-body">
+                    <a class="card-link btn btn-info" href="/campgrounds/<%= campground._id %>/edit">Editar</a>
+
+                    <!-- La clase d-inline hace que el formulario del botón eliminar no rompa la línea -->
+                    <form class="d-inline" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                        <button class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
+
+                <div class="card-footer text-muted">
+                    <a href="/campgrounds">Volver a todos los campamentos</a>
+                </div>
+            </div>
+
+        </div>
+    </div>

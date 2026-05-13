@@ -1,0 +1,43 @@
+<% layout('layouts/boilerplate') %>
+
+    <h1>Todos los Campamentos 🏕️</h1>
+
+    <!-- Un botón más bonito para agregar -->
+    <a href="/campgrounds/new" class="btn btn-success mb-3">Agregar Campamento</a>
+
+    <% for(let campground of campgrounds) { %>
+        <!-- Iniciamos la tarjeta de Bootstrap -->
+        <div class="card mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <!-- Aquí va la imagen del campamento en la vitrina -->
+                    <% if(campground.image) { %>
+                        <img class="img-fluid" alt="Foto de <%= campground.title %>" src="<%= campground.image %>">
+                        <% } else { %>
+                            <!-- Imagen por defecto por si no le has puesto foto a alguno -->
+                            <img class="img-fluid" alt="Sin imagen"
+                                src="https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80">
+                            <% } %>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <!-- Título, descripción y ubicación -->
+                        <h5 class="card-title">
+                            <%= campground.title %>
+                        </h5>
+                        <p class="card-text">
+                            <%= campground.description %>
+                        </p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <%= campground.location %>
+                            </small>
+                        </p>
+                        <!-- El botón azul para ir a los detalles -->
+                        <a class="btn btn-primary" href="/campgrounds/<%= campground._id %>">Ver Detalles</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% } %>
