@@ -5,23 +5,35 @@
         <h1 class="text-center">Nuevo Campamento</h1>
 
         <div class="col-6 offset-3">
-            <form action="/campgrounds" method="POST">
+            <form action="/campgrounds" method="POST" novalidate class="needs-validation">
 
                 <!-- mb-3 significa Margin-Bottom 3 (le da espacio abajo para que no se peguen) -->
                 <div class="mb-3">
                     <label class="form-label" for="title">Título:</label>
                     <!-- form-control hace que la caja se vea moderna y ocupe el 100% del espacio -->
                     <input class="form-control" type="text" id="title" name="campground[title]" required>
+                    <!-- AQUÍ VA EL PRIMER MENSAJE -->
+                    <div class="valid-feedback">
+                        ¡Se ve bien!
+                    </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label" for="location">Ubicación:</label>
                     <input class="form-control" type="text" id="location" name="campground[location]" required>
+                    <!-- AQUÍ VA EL SEGUNDO MENSAJE -->
+                    <div class="valid-feedback">
+                        ¡Se ve bien!
+                    </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label" for="image">Link de la Imagen:</label>
                     <input class="form-control" type="text" id="image" name="campground[image]" required>
+                    <!-- AQUÍ VA EL TERCER MENSAJE -->
+                    <div class="valid-feedback">
+                        ¡Se ve bien!
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -31,6 +43,10 @@
                         <span class="input-group-text" id="price-label">$</span>
                         <input type="text" class="form-control" id="price" placeholder="0.00" aria-label="Precio"
                             name="campground[price]" required>
+                        <!-- AQUÍ VA EL CUARTO MENSAJE (Adentro del input-group) -->
+                        <div class="valid-feedback">
+                            ¡Se ve bien!
+                        </div>
                     </div>
                 </div>
 
@@ -38,6 +54,10 @@
                     <label class="form-label" for="description">Descripción:</label>
                     <textarea class="form-control" type="text" id="description" name="campground[description]"
                         required></textarea>
+                    <!-- AQUÍ VA EL QUINTO MENSAJE -->
+                    <div class="valid-feedback">
+                        ¡Se ve bien!
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -50,3 +70,26 @@
             <a href="/campgrounds">Volver a todos los campamentos</a>
         </div>
     </div>
+
+    <!-- EL SCRIPT DE BOOTSTRAP PARA ENCENDER A NUESTRO "GUARDIA DE SEGURIDAD" -->
+    <script>
+        (function () {
+            'use strict'
+
+            // Obtenemos todos los formularios a los que queremos aplicar la validación
+            const forms = document.querySelectorAll('.needs-validation')
+
+            // Iteramos sobre ellos y evitamos que se envíen si no son válidos
+            Array.from(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>

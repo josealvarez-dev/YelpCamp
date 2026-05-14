@@ -5,6 +5,7 @@ const Campground = require('./models/campground');
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const catchAsync = require('./utils/catchAsync');
+const { campgroundSchema } = require('./schemas.js');
 
 const app = express();
 
@@ -23,6 +24,22 @@ app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
 app.use(express.urlencoded({ extended: true }));
 app.set('views', path.join(__dirname, 'views'));
+
+// Nuestro Cadenero VIP para validar campamentos
+const validateCampground = (req, res, next) => {
+    // Le pasamos los datos que envió el usuario (req.body) a JOI para que los revise
+    const { error } = campgroundSchema.validate(req.body);
+
+    if (error) {
+        // Si JOI encuentra un error (ej. falta el precio), extraemos el mensaje exacto
+        const msg = error.details.map(el => el.message).join(',');
+        // Y lanzamos nuestra propia alarma de ExpressError (Error 400 = Bad Request)
+        throw new ExpressError(msg, 400);
+    } else {
+        // Si todo está perfecto, le decimos "puedes pasar" con next()
+        next();
+    }
+}
 
 // 3. RUTA DE INICIO (Home)
 app.get('/', (req, res) => {
@@ -43,14 +60,12 @@ app.get('/campgrounds/new', (req, res) => {
 });
 
 // 2. Ruta POST para ATRAPAR los datos y guardarlos
-app.post('/campgrounds', async (req, res) => {
-    // Creamos el nuevo campamento con los datos del formulario
+app.post('/campgrounds', validateCampground, catchAsync(async (req, res, next) => {
+    // Tu código de guardar el campamento sigue intacto aquí adentro
     const campground = new Campground(req.body.campground);
-    // El guardia lo guarda en la bóveda
     await campground.save();
-    // Redirigimos a la página de detalles de este nuevo campamento
     res.redirect(`/campgrounds/${campground._id}`);
-});
+}));
 
 // OJO: Envolvemos TODO dentro de catchAsync(...)
 app.get('/campgrounds/:id', catchAsync(async (req, res) => {
@@ -64,7 +79,7 @@ app.get('/campgrounds/:id/edit', async (req, res) => {
 });
 
 // 2. Ruta PUT secreta para GUARDAR los cambios en la bóveda
-app.put('/campgrounds/:id', async (req, res) => {
+app.put('/campgrounds/:id', validateCampground, catchAsync(async (req, res) => {
     const id = req.params.id;
     // Buscamos por DNI y actualizamos con los datos nuevos que llegaron en req.body.campground
     const campamentoActualizado = await Campground.findByIdAndUpdate(id, req.body.campground);
