@@ -11,3 +11,11 @@ module.exports.campgroundSchema = Joi.object({
         description: Joi.string().required()
     }).required()
 });
+module.exports.reviewSchema = Joi.object({
+    review: Joi.object({
+        // La calificación es obligatoria y debe ser un número entre 1 y 5
+        rating: Joi.number().required().min(1).max(5),
+        // El texto es obligatorio
+        body: Joi.string().required()
+    }).required()
+});
