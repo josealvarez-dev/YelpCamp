@@ -9,8 +9,11 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const campgroundsRoutes = require('./routes/campgrounds');
 const reviewsRoutes = require('./routes/reviews');
-
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user'); // Nuestro nuevo modelo
 const app = express();
+const userRoutes = require('./routes/users');
 
 mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
     .then(() => {
@@ -37,25 +40,34 @@ const sessionConfig = {
 }
 
 app.use(session(sessionConfig));
-app.use(flash());
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+app.use(flash());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
 });
 
+app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+});
+app.use('/', userRoutes);
 app.use('/campgrounds', campgroundsRoutes);
 app.use('/campgrounds/:id/reviews', reviewsRoutes);
 
 app.get('/', (req, res) => {
     res.send("¡Bienvenidos al proyecto gigante de YelpCamp!");
-});
-
-app.use((err, req, res, next) => {
-    const { statusCode = 500 } = err;
-    if (!err.message) err.message = '¡Oh no, algo salió mal!';
-    res.status(statusCode).send(err.message);
 });
 
 app.listen(3000, () => {

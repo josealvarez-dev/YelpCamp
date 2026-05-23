@@ -8,11 +8,14 @@ const CampgroundSchema = new Schema({
     price: Number,
     description: String,
     location: String,
-    // ¡AQUÍ CONECTAMOS LOS DNIs DE LAS RESEÑAS!
+    author: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }, // <--- ¡ESTA ES LA COMA QUE FALTABA!
     reviews: [
         {
-            type: Schema.Types.ObjectId, // Le decimos que aquí solo entran IDs de Mongo
-            ref: 'Review'                // Y que esos IDs pertenecen al modelo Review
+            type: Schema.Types.ObjectId,
+            ref: 'Review'
         }
     ]
 });

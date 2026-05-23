@@ -1,0 +1,37 @@
+/* starability-basic.css */
+.starability-basic {
+    display: block;
+    position: relative;
+    width: 150px;
+    min-height: 60px;
+    padding: 0;
+    border: none;
+}
+
+.starability-basic>input {
+    position: absolute;
+    margin-right: -100%;
+    opacity: 0;
+}
+
+.starability-basic>label {
+    position: relative;
+    display: inline-block;
+    float: right;
+    width: 30px;
+    height: 30px;
+    color: transparent;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%25%22%20height%3D%22100%25%22%20viewBox%3D%220%200%20250%20250%22%3E%3Cpath%20d%3D%22M250%2090.8h-95L125%200l-30%2090.8H0l76.7%2055.7L47.5%20237%20125%20181l77.5%2056-29.3-90.5L250%2090.8z%22%20fill%3D%22%23ccc%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+}
+
+.starability-basic>input:checked~label,
+.starability-basic>input:focus~label,
+.starability-basic>input:hover~label {
+    background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%25%22%20height%3D%22100%25%22%20viewBox%3D%220%200%20250%20250%22%3E%3Cpath%20d%3D%22M250%2090.8h-95L125%200l-30%2090.8H0l76.7%2055.7L47.5%20237%20125%20181l77.5%2056-29.3-90.5L250%2090.8z%22%20fill%3D%22%23ffb600%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.starability-basic>input:focus~label {
+    outline: 2px dotted #999;
+}

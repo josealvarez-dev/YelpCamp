@@ -1,12 +1,8 @@
 <% layout('layouts/boilerplate') %>
 
     <div class="row">
-        <!-- Usamos 6 columnas y lo centramos -->
-        <div class="col-6 offset-3">
-
-            <!-- Iniciamos la Tarjeta -->
+        <div class="col-6">
             <div class="card mb-3">
-                <!-- La foto va hasta arriba de la tarjeta -->
                 <img src="<%= campground.image %>" class="card-img-top" alt="Foto de <%= campground.title %>">
 
                 <div class="card-body">
@@ -18,61 +14,66 @@
                     </p>
                 </div>
 
-                <!-- Esta es una lista elegante pegada a la tarjeta -->
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item text-muted">
                         <%= campground.location %>
                     </li>
+                    <li class="list-group-item">Sometido por: <%= campground.author.username %>
+                    </li>
                     <li class="list-group-item">$<%= campground.price %>/noche</li>
                 </ul>
-
-                <!-- Los botones van hasta abajo -->
-                <div class="card-body">
-                    <a class="card-link btn btn-info" href="/campgrounds/<%= campground._id %>/edit">Editar</a>
-
-                    <!-- La clase d-inline hace que el formulario del botón eliminar no rompa la línea -->
-                    <form class="d-inline" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
-                        <button class="btn btn-danger">Eliminar</button>
-                    </form>
-                </div>
-
-                <div class="card-footer text-muted">
-                    <a href="/campgrounds">Volver a todos los campamentos</a>
-                </div>
             </div>
+        </div>
 
+        <div class="col-6">
+            <h2>Deja una Reseña 🏕️</h2>
+
+            <form action="/campgrounds/<%= campground._id %>/reviews" method="POST" class="mb-3">
+                <fieldset class="starability-basic">
+                    <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked
+                        aria-label="No rating." />
+                    <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                    <label for="first-rate1" title="Terrible">1 star</label>
+                    <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                    <label for="first-rate2" title="Not good">2 stars</label>
+                    <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                    <label for="first-rate3" title="Average">3 stars</label>
+                    <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                    <label for="first-rate4" title="Very good">4 stars</label>
+                    <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                    <label for="first-rate5" title="Amazing">5 stars</label>
+                </fieldset>
+
+                <div class="mb-3">
+                    <label class="form-label" for="body">Comentario:</label>
+                    <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
+                </div>
+                <button class="btn btn-success">Enviar Reseña</button>
+            </form>
+
+            <h3>Reseñas de los Campistas:</h3>
+            <% for(let review of campground.reviews) { %>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <%= review.author.username %>
+                        </h5>
+
+                        <p class="starability-result" data-rating="<%= review.rating %>">
+                            Calificación: <%= review.rating %> estrellas
+                        </p>
+
+                        <p class="card-text">Comentario: <%= review.body %>
+                        </p>
+
+                        <% if( currentUser && review.author.equals(currentUser._id)) {%>
+                            <form action="/campgrounds/<%= campground._id %>/reviews/<%= review._id %>?_method=DELETE"
+                                method="POST">
+                                <button class="btn btn-sm btn-danger">Eliminar</button>
+                            </form>
+                            <% } %>
+                    </div>
+                </div>
+                <% } %>
         </div>
     </div>
-    <h2>Deja una Reseña 🏕️</h2>
-
-    <form action="/campgrounds/<%= campground._id %>/reviews" method="POST" class="mb-3">
-
-        <div class="mb-3">
-            <label class="form-label" for="rating">Calificación (1-5):</label>
-            <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label" for="body">Comentario:</label>
-            <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
-        </div>
-
-        <button class="btn btn-success">Enviar Reseña</button>
-    </form>
-    <h3>Reseñas de los Campistas:</h3>
-
-    <% for(let review of campground.reviews) { %>
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Calificación: <%= review.rating %> ⭐</h5>
-
-                <p class="card-text">Comentario: <%= review.body %>
-                </p>
-
-                <form action="/campgrounds/<%= campground._id %>/reviews/<%= review._id %>?_method=DELETE"
-                    method="POST">
-                    <button class="btn btn-sm btn-danger">Eliminar</button>
-                </form>
-            </div>
-        </div>
-        <% } %>
