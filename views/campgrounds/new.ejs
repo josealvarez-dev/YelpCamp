@@ -1,39 +1,31 @@
 <% layout('layouts/boilerplate') %>
 
-    <!-- Creamos la fila y centramos el contenido con 6 columnas y un empuje de 3 (offset-3) -->
     <div class="row">
         <h1 class="text-center">Nuevo Campamento</h1>
 
         <div class="col-6 offset-3">
-            <form action="/campgrounds" method="POST" novalidate class="needs-validation">
+            <form action="/campgrounds" method="POST" novalidate class="validated-form" enctype="multipart/form-data">
 
-                <!-- mb-3 significa Margin-Bottom 3 (le da espacio abajo para que no se peguen) -->
                 <div class="mb-3">
                     <label class="form-label" for="title">Título:</label>
-                    <!-- form-control hace que la caja se vea moderna y ocupe el 100% del espacio -->
                     <input class="form-control" type="text" id="title" name="campground[title]" required>
-                    <!-- AQUÍ VA EL PRIMER MENSAJE -->
+
                     <div class="valid-feedback">
-                        ¡Se ve bien!
+
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label" for="location">Ubicación:</label>
                     <input class="form-control" type="text" id="location" name="campground[location]" required>
-                    <!-- AQUÍ VA EL SEGUNDO MENSAJE -->
                     <div class="valid-feedback">
                         ¡Se ve bien!
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="image">Link de la Imagen:</label>
-                    <input class="form-control" type="text" id="image" name="campground[image]" required>
-                    <!-- AQUÍ VA EL TERCER MENSAJE -->
-                    <div class="valid-feedback">
-                        ¡Se ve bien!
-                    </div>
+                    <label class="form-label" for="image">Subir Imágenes (Puedes seleccionar varias):</label>
+                    <input class="form-control" type="file" id="image" name="image" multiple>
                 </div>
 
                 <div class="mb-3">
@@ -71,7 +63,6 @@
         </div>
     </div>
 
-    <!-- EL SCRIPT DE BOOTSTRAP PARA ENCENDER A NUESTRO "GUARDIA DE SEGURIDAD" -->
     <script>
         (function () {
             'use strict'

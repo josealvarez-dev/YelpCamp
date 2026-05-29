@@ -6,6 +6,9 @@ const Campground = require('../models/campground');
 const { isLoggedIn, isAuthor } = require('../middleware');
 const { campgroundSchema } = require('../schemas.js');
 const campgrounds = require('../controllers/campgrounds');
+const multer = require('multer');
+const { storage } = require('../cloudinary');
+const upload = multer({ storage });
 const validateCampground = (req, res, next) => {
     const { error } = campgroundSchema.validate(req.body);
     if (error) {
@@ -18,7 +21,8 @@ const validateCampground = (req, res, next) => {
 
 router.route('/')
     .get(catchAsync(campgrounds.index))
-    .post(isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground));
+    // 👇 LA RUTA MAESTRA: 1. Verifica login -> 2. Sube la foto a la nube -> 3. Valida el texto -> 4. Guarda en Mongo
+    .post(isLoggedIn, upload.array('image'), validateCampground, catchAsync(campgrounds.createCampground));
 
 router.get('/new', isLoggedIn, campgrounds.renderNewForm);
 
@@ -26,7 +30,7 @@ router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(campgrounds.renderEditF
 
 router.route('/:id')
     .get(catchAsync(campgrounds.showCampground))
-    .put(isLoggedIn, isAuthor, validateCampground, catchAsync(campgrounds.updateCampground))
+    .put(isLoggedIn, isAuthor, upload.array('image'), validateCampground, catchAsync(campgrounds.updateCampground))
     .delete(isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampground));
 
 module.exports = router;

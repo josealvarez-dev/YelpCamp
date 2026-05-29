@@ -1,35 +1,47 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema; // Un atajo para no escribir mongoose.Schema todo el tiempo
+const Schema = mongoose.Schema;
 const Review = require('./review');
+const opts = { toJSON: { virtuals: true } };
+const ImageSchema = new Schema({
+    url: String,
+    filename: String
+});
+
+ImageSchema.virtual('thumbnail').get(function () {
+    return this.url.replace('/upload', '/upload/w_200');
+});
 
 const CampgroundSchema = new Schema({
     title: String,
-    image: String,
+    images: [ImageSchema],
+    geometry: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
     price: Number,
     description: String,
     location: String,
     author: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }, // <--- ¡ESTA ES LA COMA QUE FALTABA!
+    },
     reviews: [
         {
             type: Schema.Types.ObjectId,
             ref: 'Review'
         }
     ]
-});
-// ==========================================
-// MIDDLEWARE DE ELIMINACIÓN EN CASCADA
-// ==========================================
-// Le decimos: "DESPUÉS (post) de que alguien borre un campamento (findOneAndDelete)..."
+}, opts);
+
 CampgroundSchema.post('findOneAndDelete', async function (campamentoEliminado) {
-
-    // Si realmente se borró un campamento y ese campamento tenía reseñas en su lista...
     if (campamentoEliminado.reviews.length) {
-
-        // ...ve a la colección de Review y ELIMINA TODAS las reseñas 
-        // cuyo DNI esté INCLUIDO ($in) dentro de la lista del campamento eliminado.
         await Review.deleteMany({
             _id: {
                 $in: campamentoEliminado.reviews
@@ -37,6 +49,12 @@ CampgroundSchema.post('findOneAndDelete', async function (campamentoEliminado) {
         });
         console.log("¡Se borró el campamento y su basura de reseñas automáticamente!");
     }
+});
+
+CampgroundSchema.virtual('properties.popUpMarkup').get(function () {
+    return `
+    <strong><a href="/campgrounds/${this._id}">${this.title}</a></strong>
+    <p>${this.description.substring(0, 20)}...</p>`;
 });
 
 module.exports = mongoose.model('Campground', CampgroundSchema);
