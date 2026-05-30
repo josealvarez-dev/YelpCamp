@@ -43,7 +43,7 @@
         </div>
 
         <div class="col-6">
-            <div id="map" style="width: 100%; height: 300px; margin-bottom: 20px;"></div>
+            <div id="map" class="mb-3"></div>
 
             <% if(currentUser){ %>
                 <h2>Deja una Reseña 🏕️</h2>
@@ -122,4 +122,5 @@
                     .setHTML(`<h5>${campamento.title}</h5><p>${campamento.location}</p>`)
             )
             .addTo(map);
+        map.addControl(new maptilersdk.NavigationControl(), 'bottom-right');
     </script>

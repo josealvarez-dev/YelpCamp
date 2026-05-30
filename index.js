@@ -70,7 +70,7 @@ app.use('/campgrounds', campgroundsRoutes);
 app.use('/campgrounds/:id/reviews', reviewsRoutes);
 
 app.get('/', (req, res) => {
-    res.send("¡Bienvenidos al proyecto gigante de YelpCamp!");
+    res.render('home');
 });
 
 app.listen(3000, () => {

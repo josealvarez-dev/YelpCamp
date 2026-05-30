@@ -76,9 +76,6 @@ map.on('load', function () {
 
 });
 
-// 👇 EVENTOS DE CLIC PARA EL MAPA 👇
-
-// 1. Cuando hacemos clic en una burbuja agrupada (Cluster)
 map.on('click', 'clusters', function (e) {
     const features = map.queryRenderedFeatures(e.point, {
         layers: ['clusters']
@@ -88,7 +85,6 @@ map.on('click', 'clusters', function (e) {
         clusterId,
         function (err, zoom) {
             if (err) return;
-            // Hacemos un zoom suave hacia adentro
             map.easeTo({
                 center: features[0].geometry.coordinates,
                 zoom: zoom
@@ -97,25 +93,21 @@ map.on('click', 'clusters', function (e) {
     );
 });
 
-// 2. Cuando hacemos clic en un puntito solitario (Unclustered Point)
 map.on('click', 'unclustered-point', function (e) {
     const coordinates = e.features[0].geometry.coordinates.slice();
     // Sacamos el HTML que preparamos en Mongoose
     const { popUpMarkup } = e.features[0].properties;
 
-    // Aseguramos que el popup salga en el lugar correcto
     while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
     }
 
-    // Dibujamos el popup
     new maptilersdk.Popup()
         .setLngLat(coordinates)
         .setHTML(popUpMarkup)
         .addTo(map);
 });
 
-// 3. Cambiamos el cursor a la "manito" de clic cuando pasamos el mouse por encima
 map.on('mouseenter', 'clusters', function () {
     map.getCanvas().style.cursor = 'pointer';
 });
@@ -128,3 +120,4 @@ map.on('mouseenter', 'unclustered-point', function () {
 map.on('mouseleave', 'unclustered-point', function () {
     map.getCanvas().style.cursor = '';
 });
+map.addControl(new maptilersdk.NavigationControl(), 'bottom-right');
