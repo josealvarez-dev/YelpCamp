@@ -17,6 +17,8 @@ const LocalStrategy = require('passport-local');
 const User = require('./models/user');
 const app = express();
 const userRoutes = require('./routes/users');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
 
 mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
     .then(() => {
@@ -32,6 +34,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 const sessionConfig = {
+    name: 'session',
     secret: 'un_secreto_temporal_para_desarrollo',
     resave: false,
     saveUninitialized: true,
@@ -41,6 +44,60 @@ const sessionConfig = {
         maxAge: 1000 * 60 * 60 * 24 * 7
     }
 }
+
+app.use((req, res, next) => {
+    Object.defineProperty(req, 'query', {
+        value: { ...req.query },
+        writable: true,
+        configurable: true,
+        enumerable: true
+    });
+    next();
+});
+
+app.use(mongoSanitize({
+    replaceWith: '_'
+}));
+
+// 👇 LA LISTA VIP DE ENLACES PERMITIDOS 👇
+const scriptSrcUrls = [
+    "https://stackpath.bootstrapcdn.com/",
+    "https://cdn.jsdelivr.net/",
+    "https://cdn.maptiler.com/", // Permitimos los scripts del mapa
+];
+const styleSrcUrls = [
+    "https://stackpath.bootstrapcdn.com/",
+    "https://fonts.googleapis.com/",
+    "https://cdn.jsdelivr.net/",
+    "https://cdn.maptiler.com/", // Permitimos el CSS del mapa
+];
+const connectSrcUrls = [
+    "https://api.maptiler.com/", // Permitimos que el mapa pida datos a su servidor
+];
+const fontSrcUrls = [];
+
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: [],
+            imgSrc: [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://res.cloudinary.com/douqbebwk/",
+                "https://res.cloudinary.com/",
+                "https://images.unsplash.com/",
+                "https://api.maptiler.com/"
+            ],
+            fontSrc: ["'self'", ...fontSrcUrls],
+        },
+    })
+);
 
 app.use(session(sessionConfig));
 
