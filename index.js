@@ -9,6 +9,7 @@ const methodOverride = require('method-override');
 const catchAsync = require('./utils/catchAsync');
 const ExpressError = require('./utils/ExpressError');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const campgroundsRoutes = require('./routes/campgrounds');
 const reviewsRoutes = require('./routes/reviews');
@@ -18,12 +19,14 @@ const User = require('./models/user');
 const app = express();
 const userRoutes = require('./routes/users');
 const helmet = require('helmet');
+const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/yelp-camp';
 const mongoSanitize = require('express-mongo-sanitize');
 
-mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
+mongoose.connect(dbUrl)
     .then(() => {
         console.log("¡BÓVEDA DE YELPCAMP CONECTADA! 🏕️");
     })
+    // ...
     .catch(err => {
         console.log("¡ERROR DE CONEXIÓN A MONGO! 💥", err);
     });
@@ -33,7 +36,19 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret: 'un_secreto_temporal_para_desarrollo'
+    }
+});
+
+store.on("error", function (e) {
+    console.log("ERROR EN LA TIENDA DE SESIONES", e)
+});
 const sessionConfig = {
+    store,
     name: 'session',
     secret: 'un_secreto_temporal_para_desarrollo',
     resave: false,
@@ -63,16 +78,16 @@ app.use(mongoSanitize({
 const scriptSrcUrls = [
     "https://stackpath.bootstrapcdn.com/",
     "https://cdn.jsdelivr.net/",
-    "https://cdn.maptiler.com/", // Permitimos los scripts del mapa
+    "https://cdn.maptiler.com/",
 ];
 const styleSrcUrls = [
     "https://stackpath.bootstrapcdn.com/",
     "https://fonts.googleapis.com/",
     "https://cdn.jsdelivr.net/",
-    "https://cdn.maptiler.com/", // Permitimos el CSS del mapa
+    "https://cdn.maptiler.com/",
 ];
 const connectSrcUrls = [
-    "https://api.maptiler.com/", // Permitimos que el mapa pida datos a su servidor
+    "https://api.maptiler.com/",
 ];
 const fontSrcUrls = [];
 
