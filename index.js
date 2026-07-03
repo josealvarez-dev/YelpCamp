@@ -1,6 +1,10 @@
 if (process.env.NODE_ENV !== "production") {
     require('dotenv').config();
 }
+
+// El DNS del router a veces bloquea consultas SRV de MongoDB Atlas; Google DNS las resuelve.
+require('dns').setServers(['8.8.8.8', '8.8.4.4']);
+
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -50,7 +54,7 @@ store.on("error", function (e) {
 const sessionConfig = {
     store,
     name: 'session',
-    secret: 'un_secreto_temporal_para_desarrollo',
+    secret: process.env.SECRET || 'un_secreto_temporal_para_desarrollo',
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -58,6 +62,11 @@ const sessionConfig = {
         expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
     }
+}
+
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+    sessionConfig.cookie.secure = true;
 }
 
 app.use((req, res, next) => {
@@ -145,6 +154,8 @@ app.get('/', (req, res) => {
     res.render('home');
 });
 
-app.listen(3000, () => {
-    console.log("¡SERVIDOR YELPCAMP ESCUCHANDO EN EL PUERTO 3000! 🚀");
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+    console.log(`¡SERVIDOR YELPCAMP ESCUCHANDO EN EL PUERTO ${port}! 🚀`);
 });
