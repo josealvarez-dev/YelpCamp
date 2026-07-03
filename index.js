@@ -1,9 +1,8 @@
 if (process.env.NODE_ENV !== "production") {
     require('dotenv').config();
+    // El DNS del router a veces bloquea consultas SRV de MongoDB Atlas en desarrollo; Google DNS las resuelve.
+    require('dns').setServers(['8.8.8.8', '8.8.4.4']);
 }
-
-// El DNS del router a veces bloquea consultas SRV de MongoDB Atlas; Google DNS las resuelve.
-require('dns').setServers(['8.8.8.8', '8.8.4.4']);
 
 const express = require('express');
 const path = require('path');
@@ -44,7 +43,7 @@ const store = MongoStore.create({
     mongoUrl: dbUrl,
     touchAfter: 24 * 60 * 60,
     crypto: {
-        secret: 'un_secreto_temporal_para_desarrollo'
+        secret: process.env.SECRET || 'un_secreto_temporal_para_desarrollo'
     }
 });
 
