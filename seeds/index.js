@@ -1,8 +1,16 @@
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+    require('dns').setServers(['8.8.8.8', '8.8.4.4']);
+}
+
 const mongoose = require('mongoose');
 const Campground = require('../models/campground');
+const User = require('../models/user');
 
-mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
-    .then(() => console.log("Conexión abierta para sembrar datos masivos"))
+const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/yelp-camp';
+
+mongoose.connect(dbUrl)
+    .then(() => console.log("Conexión abierta para sembrar datos masivos en:", dbUrl.includes('mongodb+srv') ? 'MongoDB Atlas ☁️' : 'Local 💻'))
     .catch(err => console.log(err));
 
 // Un arsenal de ciudades peruanas con sus coordenadas centrales [Longitud, Latitud]
@@ -15,6 +23,12 @@ const ciudadesPeru = [
 ];
 
 const seedDB = async () => {
+    // 0. Buscamos o creamos un usuario autor por defecto en Atlas
+    await User.deleteMany({});
+    const user = new User({ email: 'jose@yelpcamp.com', username: 'josealvarez' });
+    const registeredUser = await User.register(user, 'password123');
+    const authorId = registeredUser._id;
+
     // 1. Limpiamos la base de datos
     await Campground.deleteMany({});
 
@@ -29,8 +43,8 @@ const seedDB = async () => {
         const latRandom = randomCiudad.coords[1] + (Math.random() * 0.2 - 0.1);
 
         const camp = new Campground({
-            // 👇 ¡ATENCIÓN! Revisa que este sea tu ID de usuario real 👇
-            author: '6a0d45ad8f9ba59ec43d45d9',
+            // Autor real creado dinámicamente en Atlas
+            author: authorId,
             title: `Campamento Oculto ${i + 1}`,
             location: `${randomCiudad.nombre}, Perú`,
             description: 'Un paraje espectacular descubierto por la comunidad.',
